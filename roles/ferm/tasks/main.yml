@@ -1,0 +1,33 @@
+---
+# Install and configure ferm.
+#
+
+# The ferm program is in the epel repository so we need
+# to enable it. This could be a separate role, but this
+# is left as an exercise for the reader.
+- name: enable the epel repo
+  yum: name=epel-release
+       state=present
+
+# We need to install libselinux-python on the target
+# machine to be able to use Ansible to copy the ferm.conf
+# file to the /etc/ferm/ directory. It would be reasonable
+# to move this task into a separate role for installing common
+# software, again this is left as an exercise for the reader.
+- name: install libselinux-python
+  yum: name=libselinux-python
+       state=present
+
+- name: install ferm
+  yum: name=ferm
+       state=present
+
+- name: add /etc/ferm directory
+  file: path=/etc/ferm
+        mode=0700
+        state=directory
+
+- name: add the ferm.conf file to /etc/ferm
+  copy: src=ferm.conf
+        dest=/etc/ferm/ferm.conf
+  notify: run ferm

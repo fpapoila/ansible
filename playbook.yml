@@ -1,0 +1,12 @@
+---
+- hosts: all
+  become: True
+
+  roles:
+    - build_tools
+
+- hosts: webserver
+  sudo: True
+
+  roles:
+    - nginx

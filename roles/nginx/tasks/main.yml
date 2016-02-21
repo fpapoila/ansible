@@ -1,0 +1,27 @@
+---
+# Install NGINX
+
+- name: "NGINX | Installing NGINX repo rpm"
+  yumrepo:
+    name: nginx
+    description: NGINX repository
+    baseurl: http://nginx.org/packages/centos/7/$basearch/
+    gpgcheck: no
+    enabled: yes
+
+- name: NGINX | Installing NGINX
+  yum:
+    name: nginx-1.8.1-1.el7.ngx
+    state: present
+
+- name: NGINX | Starting NGINX
+  service:
+    name: nginx
+    enabled: yes
+    state: started
+
+- name: Open HTTP and HTTPs ports
+  lineinfile: dest=/etc/ferm/ferm.conf
+              line='proto tcp dport (http https) ACCEPT;'
+              insertafter='# Ansible specified rules.'
+  notify: run ferm
