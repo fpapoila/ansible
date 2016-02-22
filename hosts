@@ -1,2 +1,5 @@
-[webserver]
+[webserver:children]
+maestro
+
+[maestro]
 maestro.ahoy.pro	ansible_ssh_user=root

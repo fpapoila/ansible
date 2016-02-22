@@ -1,0 +1,12 @@
+---
+
+www_user: nginx
+
+# Make sure the default host is removed
+nginx_remove_default: true
+
+applications:
+  - name: maestro
+    domain: maestro.ahoy.pro
+    repository: https://github.com/revolucaodosbytes/maestro.git
+    branch: master

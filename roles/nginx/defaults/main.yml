@@ -1,0 +1,9 @@
+---
+
+www_user: nginx
+
+nginx_remove_default: false
+
+applications:
+  - name: default
+    domain: "{{ inventory_hostname }}"

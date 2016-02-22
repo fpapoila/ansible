@@ -9,6 +9,9 @@
     gpgcheck: no
     enabled: yes
 
+- name: Debug info
+  debug: var=applications
+
 - name: NGINX | Installing NGINX
   yum:
     name: nginx-1.8.1-1.el7.ngx
@@ -25,3 +28,52 @@
               line='proto tcp dport (http https) ACCEPT;'
               insertafter='# Ansible specified rules.'
   notify: run ferm
+
+- name: Create /var/www/ directory
+  file: dest=/var/www/
+        state=directory
+        owner={{ www_user }}
+        group={{ www_user }}
+        mode=0700
+
+- name: Configure nginx
+  template: src=nginx.conf dest=/etc/nginx/conf.d/{{ item.name }}.conf
+  with_items: "{{applications}}"
+  notify:
+    - restart php5-fpm
+    - restart nginx
+
+- name: Remove the default nginx host
+  file:
+    path: /etc/nginx/conf.d/default.conf
+    state: absent
+  when: "{{ nginx_remove_default }}"
+
+# Only clone when there is a repository
+- name: Clone git repository
+  git: >
+    dest=/var/www/{{ item.name }}
+    repo={{ item.repository }}
+    update=yes
+    version={{ item.branch }}
+  sudo: yes
+  sudo_user: "{{ www_user }}"
+  with_items: "{{applications}}"
+  register: cloned
+  when: item.repository is defined
+  notify:
+    - reload nginx
+
+
+- name: Copying default files
+  copy:
+    src: default_page/  
+    dest: /var/www/{{ item.name }}/public
+    owner: "{{ www_user }}"
+    group: "{{ www_user }}"
+  with_items: "{{applications}}"
+  when: cloned|skipped or cloned|failed
+  notify:
+    - reload nginx
+
+

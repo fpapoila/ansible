@@ -1,0 +1,5 @@
+---
+
+dependencies: 
+  - { role: build_tools }
+  - { role: nginx }
